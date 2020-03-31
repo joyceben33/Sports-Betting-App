@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const app = express();
-const router = require('./router');
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
 
@@ -26,22 +25,28 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Socket.io
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('disconnect', function(){
-    console.log('User Disconnected');
-  });
-  socket.on('example_message', function(msg){
-    console.log('message: ' + msg);
-  });
-});
-io.listen(8000);
+// // Socket.io
+// const http = require('http').Server(app);
+// const io = require('socket.io')(http);
+// io.on('connection', function(socket){
+//   console.log('a user connected');
+//   socket.on('disconnect', function(){
+//     console.log('User Disconnected');
+//   });
+//   socket.on('example_message', function(msg){
+//     console.log('message: ' + msg);
+//   });
+// });
+// io.listen(8000);
 
 // Server Setup
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
+const io = require('socket.io')(server);
+io.on('connection', client => {
+    console.log('a user connected');
+  client.on('event', data => { /* … */ });
+  client.on('disconnect', () => { /* … */ });
+});
 server.listen(port);
 console.log('Server listening on:', port);
