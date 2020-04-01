@@ -1,8 +1,12 @@
 import React, { Component } from "react";
+import ReactDOM from 'react-dom';
+import Container from '@material-ui/core/Container'
 import socketIOClient from "socket.io-client";
+import PlayLog from "./playLog"
+import GameSummary from "./gameSummary"
 
 
-class Home extends Component {
+class App extends Component {
     constructor() {
         super();
         this.state = {
@@ -12,40 +16,20 @@ class Home extends Component {
 
     }
 
-    // sending sockets
-    send = () => {
-        const socket = socketIOClient(this.state.endpoint);
-        socket.emit('change color', this.state.color) // change 'red' to this.state.color
-    }
-    ///
-
-    // adding the function
-    setColor = (color) => {
-        this.setState({ color })
-    }
 
 
 
     render() {
-        // testing for socket connections
-
-        const socket = socketIOClient(this.state.endpoint);
-        socket.on('change color', (col) => {
-            document.body.style.backgroundColor = col
-        })
+       
 
         return (
-            <div style={{ textAlign: "center" }}>
-                <button onClick={() => this.send()}>Change Color</button>
-                
-                <button id="blue" onClick={() => this.setColor('blue')}>Blue</button>
-                <button id="red" onClick={() => this.setColor('red')}>Red</button>
-
-            </div>
+          <Container maxWidth="lg">
+             <GameSummary />
+          </Container>
         )
     }
 }
 
-export default Home
+export default App
 
 

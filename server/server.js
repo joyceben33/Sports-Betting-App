@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const keys = require('./config/keys');
 const Game = require('./models/Game')
 const bodyParser = require('body-parser')
-const Counter = require('./models/counters')
 
 // DB Setup
 // mongoose.connect(keys.MONGODB_URI);
