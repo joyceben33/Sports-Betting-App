@@ -4,6 +4,8 @@ import Container from '@material-ui/core/Container'
 import socketIOClient from "socket.io-client";
 import PlayLog from "./playLog"
 import GameSummary from "./gameSummary"
+import BetTracker from "./betTracker"
+import PlaceBet from "./placeBet"
 
 
 class App extends Component {
@@ -15,16 +17,15 @@ class App extends Component {
         }
 
     }
-
-
-
-
     render() {
        
 
         return (
           <Container maxWidth="lg">
              <GameSummary />
+             <PlayLog />
+             <BetTracker />
+             <PlaceBet />
           </Container>
         )
     }
