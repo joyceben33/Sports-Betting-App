@@ -37,11 +37,9 @@ class Home extends Component {
         return (
             <div style={{ textAlign: "center" }}>
                 <button onClick={() => this.send()}>Change Color</button>
-                ///
-                // adding the two buttons, also, remove all of the comments in the JSX section.
+                
                 <button id="blue" onClick={() => this.setColor('blue')}>Blue</button>
                 <button id="red" onClick={() => this.setColor('red')}>Red</button>
-            ///
 
             </div>
         )
@@ -49,3 +47,5 @@ class Home extends Component {
 }
 
 export default Home
+
+

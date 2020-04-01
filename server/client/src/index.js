@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 // import rootReducer from "./reducers/index";
 import './index.css';
-import Home from './components/home';
+import App from './components/app';
 
 
 //Create store for state management
@@ -16,7 +16,7 @@ import Home from './components/home';
 </Provider> */}
 
 ReactDOM.render(
-<Home/>,
+<App/>,
   document.getElementById('root')
 );
 

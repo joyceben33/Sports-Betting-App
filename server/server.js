@@ -3,14 +3,18 @@ const http = require('http');
 const app = express();
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
+const Game = require('./models/Game')
+const bodyParser = require('body-parser')
+const Counter = require('./models/counters')
 
 // DB Setup
-mongoose.connect(keys.MONGODB_URI);
+// mongoose.connect(keys.MONGODB_URI);
+mongoose.connect('mongodb://localhost/bettingApp')
 
-app.use(express.urlencoded({
-    extended: true
-}));
-app.use(express.json());
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
 
 if (process.env.NODE_ENV === 'production') {
     // Express will serve up production assets
@@ -43,6 +47,7 @@ if (process.env.NODE_ENV === 'production') {
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+
 io.on('connection', socket => {
     console.log('a user connected');
     
@@ -52,12 +57,30 @@ io.on('connection', socket => {
         // we make use of the socket.emit method again with the argument given to use from the callback function above
         console.log('Color Changed to: ', color)
         io.sockets.emit('change color', color)
-      })
+    })
 
     // disconnect is fired when a client leaves the server
     socket.on("disconnect", () => {
         console.log("user disconnected");
       });
 });
+
+
+
+
+
+app.get("/Game", (req, res, next) => {
+    let id = req.body.gameID
+
+    Game
+        .find({})
+        .exec((err, play) => {
+            
+           
+            res.send(play)
+
+        })
+
+})
 server.listen(port);
 console.log('Server listening on:', port);
