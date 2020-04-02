@@ -12,7 +12,7 @@ mongoose.connect('mongodb://localhost/bettingApp')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
-  extended: true
+    extended: true
 }))
 
 if (process.env.NODE_ENV === 'production') {
@@ -34,50 +34,66 @@ if (process.env.NODE_ENV === 'production') {
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+server.listen(port);
+console.log('Server listening on:', port);
 
-io.on('connection', client => {
+io.on('connection', socket => {
     console.log('a user connected');
-    // //emit sends
-    // client.emit('message',  {message: "hey1"})
-    // client.emit('message',  {message: "hey2"})
-    // client.emit('message',  {message: "hey3"})
+    // declare varables 
+    const gameStatus = {
+        isStarted: false,
+        isActive: false,
+    }
+    let game = null;
 
-    // // There is a method to figure out how many clients are connected to to the socket
-    // let clients = 4;
-    // // This sends a message to all the clients 
-    // io.sockets.emit('message', {message: `There are ${clients} connected.`})
+    socket.on('subscribe_game_status', () => {
+        socket.emit('game_status', gameStatus)
+    })
+    
 
-    client.on('subscribeToTimer', (interval) => {
+    socket.on('subscribeToTimer', (interval) => {
         console.log('client is subscribing to timer with interval ', interval);
         setInterval(() => {
-          client.emit('timer', new Date());
+          socket.emit('timer', new Date());
         }, interval);
     });
+    
+
+
+    socket.on('startGame', (timeInterval) => {
+        console.log(`client is subscribing to plays being sent every ${timeInterval/1000} seconds`);
+        //start the game
+         game = setInterval(() => {
+            io.sockets.emit('playByPlay', getPlay())
+        , timeInterval})
+
+
+        //write function
+        function getPlay() {
+            return( 
+            app.get("/Game", (req, res, next) => {
+                Game
+                    .findOne({})
+                    .exec((err, play) => {
+                        res.send(play)
+
+                    })
+
+            }))
+        }
+
+    })
 
 
 
     // disconnect is fired when a client leaves the server
-    client.on("disconnect", () => {
+    socket.on("disconnect", () => {
         console.log("user disconnected");
-      });
+    });
 });
 
 
 
 
 
-app.get("/Game", (req, res, next) => {
-    let id = req.body.gameID
 
-    Game
-        .find({})
-        .exec((err, play) => {
-            
-           
-            res.send(play)
-
-        })
-
-})
-server.listen(port);
-console.log('Server listening on:', port);
