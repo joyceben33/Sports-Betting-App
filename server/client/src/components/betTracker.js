@@ -14,12 +14,12 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(play, score, winProbability) {
-  return { play, score, winProbability };
+function createData(betType, betDesc, betStatus, wager, expReturn) {
+  return { betType, betDesc, betStatus, wager, expReturn };
 }
 
 const rows = [
-  createData('This is the first play', "13-0", "0.4"),
+  createData('Line', "MIL +150", "Active", "$50", "+($20)" ),
 //   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
 //   createData('Eclair', 262, 16.0, 24, 6.0),
 //   createData('Cupcake', 305, 3.7, 67, 4.3),
@@ -34,19 +34,23 @@ export default function BetTracker() {
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Play Description</TableCell>
-            <TableCell align="right">Score</TableCell>
-            <TableCell align="right">Win Probability</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell align="right">Description</TableCell>
+            <TableCell align="right">status</TableCell>
+            <TableCell align="right">Wager</TableCell>
+            <TableCell align="right">Gain/Loss</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.play}>
               <TableCell component="th" scope="row">
-                {row.play}
+                {row.betType}
               </TableCell>
-              <TableCell align="right">{row.score}</TableCell>
-              <TableCell align="right">{row.winProbability}</TableCell>
+              <TableCell align="right">{row.betDesc}</TableCell>
+              <TableCell align="right">{row.betStatus}</TableCell>
+              <TableCell align="right">{row.wager}</TableCell>
+              <TableCell align="right">{row.expReturn}</TableCell>
             </TableRow>
           ))}
         </TableBody>

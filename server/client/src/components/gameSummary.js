@@ -3,8 +3,18 @@ import ReactDOM from 'react-dom';
 import Box from '@material-ui/core/Box'
 import socketIOClient from "socket.io-client";
 import Typography from '@material-ui/core/Typography';
+// global.socket = socketIOClient('localhost:5000')
+// global.socket.on('message', function(message) {
+// console.log(message)
+// })
+
+// global.socket.emit('check-in', {checkIn1: "first customer" })
+
+
 
 function GameSummary() {
+
+    // const socket = socketIOClient(this.state.endpoint);
 
     return (
         <Box display="flex" justifyContent="space-between">
