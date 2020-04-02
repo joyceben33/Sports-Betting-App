@@ -1,51 +1,47 @@
 import React, { Component } from "react";
-import socketIOClient from "socket.io-client";
+import ReactDOM from 'react-dom';
+import Container from '@material-ui/core/Container'
+import PlayLog from "./playLog"
+import GameSummary from "./gameSummary"
+import BetTracker from "./betTracker"
+import PlaceBet from "./placeBet"
+// import openSocket from 'socket.io-client';
+// const socket = openSocket('http://localhost:5000');
+import { subscribeToTimer } from './api';
 
 
-class Home extends Component {
-    constructor() {
-        super();
+class App extends Component {
+    constructor(props) {
+        super(props);
+
         this.state = {
-            endpoint: "localhost:5000",
-            color: "white"
-        }
+            timestamp: 'no timestamp yet'
+        };
+
+        subscribeToTimer((err, timestamp) => this.setState({
+            timestamp
+        }));
 
     }
-
-    // sending sockets
-    send = () => {
-        const socket = socketIOClient(this.state.endpoint);
-        socket.emit('change color', this.state.color) // change 'red' to this.state.color
-    }
-    ///
-
-    // adding the function
-    setColor = (color) => {
-        this.setState({ color })
-    }
-
-
-
     render() {
-        // testing for socket connections
 
-        const socket = socketIOClient(this.state.endpoint);
-        socket.on('change color', (col) => {
-            document.body.style.backgroundColor = col
-        })
 
         return (
-            <div style={{ textAlign: "center" }}>
-                <button onClick={() => this.send()}>Change Color</button>
-                
-                <button id="blue" onClick={() => this.setColor('blue')}>Blue</button>
-                <button id="red" onClick={() => this.setColor('red')}>Red</button>
-
-            </div>
+            <Container maxWidth="lg">
+                <div className="App">
+                    <p className="App-intro">
+                        This is the timer value: {this.state.timestamp}
+                    </p>
+                </div>
+                <GameSummary />
+                <PlayLog />
+                <BetTracker />
+                <PlaceBet />
+            </Container>
         )
     }
 }
 
-export default Home
+export default App
 
 

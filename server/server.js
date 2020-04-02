@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const keys = require('./config/keys');
 const Game = require('./models/Game')
 const bodyParser = require('body-parser')
-const Counter = require('./models/counters')
 
 // DB Setup
 // mongoose.connect(keys.MONGODB_URI);
@@ -29,38 +28,36 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// // Socket.io
-// const http = require('http').Server(app);
-// const io = require('socket.io')(http);
-// io.on('connection', function(socket){
-//   console.log('a user connected');
-//   socket.on('disconnect', function(){
-//     console.log('User Disconnected');
-//   });
-//   socket.on('example_message', function(msg){
-//     console.log('message: ' + msg);
-//   });
-// });
-// io.listen(8000);
+
 
 // Server Setup
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
-io.on('connection', socket => {
+io.on('connection', client => {
     console.log('a user connected');
-    
-    // just like on the client side, we have a socket.on method that takes a callback function
-    socket.on('change color', (color) => {
-        // once we get a 'change color' event from one of our clients, we will send it to the rest of the clients
-        // we make use of the socket.emit method again with the argument given to use from the callback function above
-        console.log('Color Changed to: ', color)
-        io.sockets.emit('change color', color)
-    })
+    // //emit sends
+    // client.emit('message',  {message: "hey1"})
+    // client.emit('message',  {message: "hey2"})
+    // client.emit('message',  {message: "hey3"})
+
+    // // There is a method to figure out how many clients are connected to to the socket
+    // let clients = 4;
+    // // This sends a message to all the clients 
+    // io.sockets.emit('message', {message: `There are ${clients} connected.`})
+
+    client.on('subscribeToTimer', (interval) => {
+        console.log('client is subscribing to timer with interval ', interval);
+        setInterval(() => {
+          client.emit('timer', new Date());
+        }, interval);
+    });
+
+
 
     // disconnect is fired when a client leaves the server
-    socket.on("disconnect", () => {
+    client.on("disconnect", () => {
         console.log("user disconnected");
       });
 });
