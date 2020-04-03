@@ -1,20 +1,45 @@
 const express = require('express');
 const http = require('http');
-const app = express();
+const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
-const Game = require('./models/Game')
-const bodyParser = require('body-parser')
+const Play = require('./models/play');
 
-// DB Setup
+const app = express();
+
+// Add Models below
+
+//Body Parser
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.json())
+
+
+// MONGOOSE CONNECT
+// ===========================================================================
 // mongoose.connect(keys.MONGODB_URI);
 mongoose.connect('mongodb://localhost/bettingApp')
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-    extended: true
-}))
+const db = mongoose.connection
+db.on('error', ()=> {console.log( '---User FAILED to connect to mongoose')})
+db.once('open', () => {
+	console.log( '+++User connected to mongoose')
+})
 
+
+
+    
+
+
+// Server Setup
+// ===========================================================================
+const port = process.env.PORT || 5000;
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+server.listen(port, () => {console.log("+++User Express Server with Socket Running!!!")});
+
+/***************************************************************************************** */
+/* Conditions for production														   */
+/***************************************************************************************** */
 if (process.env.NODE_ENV === 'production') {
     // Express will serve up production assets
     // like our main.js file, or main.css file!
@@ -28,22 +53,23 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
+  
 
 
-// Server Setup
-const port = process.env.PORT || 5000;
-const server = http.createServer(app);
-const io = require('socket.io')(server);
-server.listen(port);
-console.log('Server listening on:', port);
 
+/***************************************************************************************** */
+/* Socket logic starts here																   */
+/***************************************************************************************** */
+const connections = [];
 io.on('connection', socket => {
-    console.log('a user connected');
-    // declare varables 
-    const gameStatus = {
-        isStarted: false,
-        isActive: false,
-    }
+    console.log(`A user connected with the id: ${socket.id}`);
+    connections.push(socket)
+
+    // disconnect is fired when a client leaves the server
+    socket.on("disconnect", () => {
+        console.log(`Disconnected id: ${socket.id}`);
+    });
+
     let game = null;
 
     socket.on('subscribe_game_status', () => {
@@ -86,10 +112,7 @@ io.on('connection', socket => {
 
 
 
-    // disconnect is fired when a client leaves the server
-    socket.on("disconnect", () => {
-        console.log("user disconnected");
-    });
+   
 });
 
 
