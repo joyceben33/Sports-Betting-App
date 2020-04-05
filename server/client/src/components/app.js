@@ -1,45 +1,51 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
+import {connect} from 'react-redux'
+import {loadinitialGameStatusSocket} from '../actions/action'
+import io from "socket.io-client"
+
+//Material UI
 import Container from '@material-ui/core/Container'
+// Import Components
 import PlayLog from "./playLog"
 import GameSummary from "./gameSummary"
 import BetTracker from "./betTracker"
 import PlaceBet from "./placeBet"
-import { subscribeToTimer } from './api';
-import { getGameStatus } from './api2'
+// import { subscribeToTimer } from './api';
 
-
+let socket
+const mapStateToProps = (state = {}) => {
+	// console.dir(state)
+    return {...state};
+};
 class App extends Component {
     constructor(props) {
         super(props);
+        const {dispatch} = this.props
 
-        this.state = {
-            timestamp: 'no timestamp yet',
-            gameStatus: {
-                isStarted: null,
-                isActive: null
-            }
-           
-        };
+        socket = io.connect("http://localhost:5000")
+	   console.dir(socket)
+	   dispatch(loadinitialGameStatusSocket(socket))
 
-        subscribeToTimer((err, timestamp) => this.setState({
-            timestamp
-        }));
-
-        getGameStatus((err, gameStatus) => this.setState({
-            
-            gameStatus
-        }))
     }
-    render() {
 
+    componentWillUnmount() {
+        socket.disconnect()
+        alert("Disconnecting Socket as component will unmount")
+    }
+
+    render() {
+        const {dispatch} = this.props
 
         return (
             <Container maxWidth="lg">
-                <div className="App">
+                {/* <div className="App">
                     <p className="App-intro">
                         The time is: {this.state.timestamp}
                     </p>
+                </div> */}
+                <div>
+
                 </div>
                 <GameSummary />
                 <PlayLog />
