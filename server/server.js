@@ -2,8 +2,9 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
-const keys = require('./config/keys');
+// const keys = require('./config/keys');
 const app = express();
+const index = require('./routes/index');
 //Import Schemas from models folder
 const Game = require('./models/game');
 const Play = require('./models/play');
@@ -15,8 +16,12 @@ const Bet = require('./models/bet');
 // Add Models below
 
 //Body Parser
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({
+    extended: true
+}))
 app.use(bodyParser.json())
+
+// app.use(index);
 
 
 // MONGOOSE CONNECT
@@ -25,14 +30,16 @@ app.use(bodyParser.json())
 mongoose.connect('mongodb://localhost/bettingApp')
 
 const db = mongoose.connection
-db.on('error', ()=> {console.log( '---User FAILED to connect to mongoose')})
+db.on('error', () => {
+    console.log('---User FAILED to connect to mongoose')
+})
 db.once('open', () => {
-	console.log( '+++User connected to mongoose')
+    console.log('+++User connected to mongoose')
 })
 
 
 
-    
+
 
 
 // Server Setup
@@ -40,7 +47,9 @@ db.once('open', () => {
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-server.listen(port, () => {console.log("+++User Express Server with Socket Running!!!")});
+server.listen(port, () => {
+    console.log("+++User Express Server with Socket Running!!!")
+});
 
 /***************************************************************************************** */
 /* Conditions for production														   */
@@ -58,8 +67,16 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-  
 
+// app.get('/', (req, res) => {
+//     Game
+//         .findOne({
+//             "gameId": "401161581"
+//         })
+//         .exec((err, game) => {
+//             res.send(game)
+//         })
+// })
 
 
 /***************************************************************************************** */
@@ -77,16 +94,20 @@ io.on('connection', socket => {
 
     //Sending out initial game status to clients connected to the socket
     //Note hard coded game id because there is just one game in the database
-    Game.findOne({gameId: "401161581"},"-_id itemId item completed",(err,result)=>{
-            if (err){
+    app.get('/', (req,res) => {
+        Game.findOne({
+            "gameId": "401161581"
+        }).exec((err, game) => {
+            if (err) {
                 console.log("---USER GET failed!!")
-            }
-            else {
-                console.dir(result)
-                socket.emit('initialGameStatus',result)
+            } else {
+                console.log(game)
+                socket.emit('initialGameStatus', res.send(game))
                 console.log("+++USER GET worked!!")
             }
         })
+    })
+   
 
     // socket.on('subscribeToTimer', (interval) => {
     //     console.log('client is subscribing to timer with interval ', interval);
@@ -94,7 +115,7 @@ io.on('connection', socket => {
     //       socket.emit('timer', new Date());
     //     }, interval);
     // });
-    
+
 
 
     // socket.on('startGame', (timeInterval) => {
@@ -123,11 +144,5 @@ io.on('connection', socket => {
 
 
 
-   
+
 });
-
-
-
-
-
-

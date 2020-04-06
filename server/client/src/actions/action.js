@@ -1,16 +1,9 @@
-
-import axios from "axios"
-
+import axios from 'axios'
 
 
 
 
 
-/* Used only by actions for sockets */
-export const initialItems = (res) => ({
-	type: "INITIAL_ITEMS",
-	items: res
-})
 
 /***************************************************************************************** */
 /* Async Action items using - Sockets													   */

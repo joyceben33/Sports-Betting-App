@@ -1,8 +1,13 @@
-import {List} from 'immutable';
 
-let id = 0;
-const initialState = { items:List([])}
+const initialState = {
+    gameId: '',
+    homeTeamId: '',
+    awayTeamId: '',
+    active: false,
+    complete: false
 
+    
+}
 
 const reducer = (state=initialState, action) => {
   switch (action.type) {
