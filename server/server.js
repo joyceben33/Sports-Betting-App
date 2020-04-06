@@ -1,20 +1,59 @@
 const express = require('express');
 const http = require('http');
-const app = express();
-const mongoose = require('mongoose');
-const keys = require('./config/keys');
-const Game = require('./models/Game')
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose');
+// const keys = require('./config/keys');
+const app = express();
+const index = require('./routes/index');
+//Import Schemas from models folder
+const Game = require('./models/game');
+const Play = require('./models/play');
+const Team = require('./models/team');
+const Bet = require('./models/bet');
 
-// DB Setup
+
+
+// Add Models below
+
+//Body Parser
+app.use(bodyParser.urlencoded({
+    extended: true
+}))
+app.use(bodyParser.json())
+
+// app.use(index);
+
+
+// MONGOOSE CONNECT
+// ===========================================================================
 // mongoose.connect(keys.MONGODB_URI);
 mongoose.connect('mongodb://localhost/bettingApp')
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-  extended: true
-}))
+const db = mongoose.connection
+db.on('error', () => {
+    console.log('---User FAILED to connect to mongoose')
+})
+db.once('open', () => {
+    console.log('+++User connected to mongoose')
+})
 
+
+
+
+
+
+// Server Setup
+// ===========================================================================
+const port = process.env.PORT || 5000;
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+server.listen(port, () => {
+    console.log("+++User Express Server with Socket Running!!!")
+});
+
+/***************************************************************************************** */
+/* Conditions for production														   */
+/***************************************************************************************** */
 if (process.env.NODE_ENV === 'production') {
     // Express will serve up production assets
     // like our main.js file, or main.css file!
@@ -29,55 +68,81 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-
-// Server Setup
-const port = process.env.PORT || 5000;
-const server = http.createServer(app);
-const io = require('socket.io')(server);
-
-io.on('connection', client => {
-    console.log('a user connected');
-    // //emit sends
-    // client.emit('message',  {message: "hey1"})
-    // client.emit('message',  {message: "hey2"})
-    // client.emit('message',  {message: "hey3"})
-
-    // // There is a method to figure out how many clients are connected to to the socket
-    // let clients = 4;
-    // // This sends a message to all the clients 
-    // io.sockets.emit('message', {message: `There are ${clients} connected.`})
-
-    client.on('subscribeToTimer', (interval) => {
-        console.log('client is subscribing to timer with interval ', interval);
-        setInterval(() => {
-          client.emit('timer', new Date());
-        }, interval);
-    });
+// app.get('/', (req, res) => {
+//     Game
+//         .findOne({
+//             "gameId": "401161581"
+//         })
+//         .exec((err, game) => {
+//             res.send(game)
+//         })
+// })
 
 
+/***************************************************************************************** */
+/* Socket logic starts here																   */
+/***************************************************************************************** */
+const connections = [];
+io.on('connection', socket => {
+    console.log(`A user connected with the id: ${socket.id}`);
+    connections.push(socket)
 
     // disconnect is fired when a client leaves the server
-    client.on("disconnect", () => {
-        console.log("user disconnected");
-      });
-});
+    socket.on("disconnect", () => {
+        console.log(`Disconnected id: ${socket.id}`);
+    });
 
-
-
-
-
-app.get("/Game", (req, res, next) => {
-    let id = req.body.gameID
-
-    Game
-        .find({})
-        .exec((err, play) => {
-            
-           
-            res.send(play)
-
+    //Sending out initial game status to clients connected to the socket
+    //Note hard coded game id because there is just one game in the database
+    app.get('/', (req,res) => {
+        Game.findOne({
+            "gameId": "401161581"
+        }).exec((err, game) => {
+            if (err) {
+                console.log("---USER GET failed!!")
+            } else {
+                console.log(game)
+                socket.emit('initialGameStatus', res.send(game))
+                console.log("+++USER GET worked!!")
+            }
         })
+    })
+   
 
-})
-server.listen(port);
-console.log('Server listening on:', port);
+    // socket.on('subscribeToTimer', (interval) => {
+    //     console.log('client is subscribing to timer with interval ', interval);
+    //     setInterval(() => {
+    //       socket.emit('timer', new Date());
+    //     }, interval);
+    // });
+
+
+
+    // socket.on('startGame', (timeInterval) => {
+    //     console.log(`client is subscribing to plays being sent every ${timeInterval/1000} seconds`);
+    //     //start the game
+    //      game = setInterval(() => {
+    //         io.sockets.emit('playByPlay', getPlay())
+    //     , timeInterval})
+
+
+    //     //write function
+    //     function getPlay() {
+    //         return( 
+    //         app.get("/Game", (req, res, next) => {
+    //             Game
+    //                 .findOne({})
+    //                 .exec((err, play) => {
+    //                     res.send(play)
+
+    //                 })
+
+    //         }))
+    //     }
+
+    // })
+
+
+
+
+});

@@ -1,22 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
+import { Provider } from "react-redux";
 import thunk from "redux-thunk";
-// import rootReducer from "./reducers/index";
 import './index.css';
-import App from './components/app';
 
+//Component & Reducer
+import App from './components/app';
+import reducer from "./reducers/reducer";
+
+//Matertial UI
+// import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
 //Create store for state management
-// const store = createStore(rootReducer, {}, applyMiddleware(thunk));
+const store = createStore(reducer, applyMiddleware(thunk));
 
-{/* <Provider store={store}>
-  <Home />
-</Provider> */}
+
 
 ReactDOM.render(
-<App/>,
+  <Provider store={store}>
+    {/* <MuiThemeProvider> */}
+      <App />
+    {/* </MuiThemeProvider> */}
+  </Provider>,
   document.getElementById('root')
 );
 
