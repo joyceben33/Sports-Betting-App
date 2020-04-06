@@ -11,7 +11,7 @@ import PlayLog from "./playLog"
 import GameSummary from "./gameSummary"
 import BetTracker from "./betTracker"
 import PlaceBet from "./placeBet"
-import { subscribeToTimer, getGameStatus, getTeams, getPlays } from './api';
+import { subscribeToTimer, getGameStatus, getTeams, getNextPlay } from './api';
 
 
 class App extends Component {
@@ -28,7 +28,7 @@ class App extends Component {
                 complete: false
             },
             teams: ['', ''],
-            plays: ['']
+            plays: []
         };
 
 
@@ -46,8 +46,8 @@ class App extends Component {
             teams
         }))
 
-        getPlays((err, plays) => this.setState({
-            plays
+        getNextPlay((err, play) => this.setState({
+            plays : this.state.plays.concat(play)
         }))
 
 
@@ -64,7 +64,6 @@ class App extends Component {
                     time: {this.state.timestamp}
                     homeId: {this.state.gamestatus.homeTeamId}
                     teams: {this.state.teams[0].city} + {this.state.teams[1].city}
-                    plays: {}
 
                 </div>
                 {/* <GameSummary /> */}

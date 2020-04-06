@@ -17,7 +17,12 @@ export function getTeams(cb){
   socket.emit('getTeams')
 }
 
-export function getPlays(cb){
-  socket.on('getPlays', plays => cb(null, plays))
-  socket.emit('getPlays')
+export function getNextPlay(cb){
+  socket.on('getNextPlay', play => cb(null, play))
+  socket.emit('subscribeToPlayLog', 100)
 }
+
+// export function endGame(cb){
+//   socket.on('endGame', cb(null))
+//   socket.emit('endGame')
+// }

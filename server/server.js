@@ -123,26 +123,28 @@ io.on('connection', socket => {
             }
         })
     })
+    
+    let playLogInterval;
+    let currentId = null
+    socket.on('subscribeToPlayLog', (timeInterval) => {
+       playLogInterval = setInterval(() => {
+        if (!currentId) {
+            Play.findOne({}).exec((err, firstPlay) => {
+                currentId = firstPlay['_id'].toString();
+                socket.emit('getNextPlay', firstPlay)
+            })
+        } else{
+           Play.find({_id: {$gt: currentId}}).sort({_id: 1}).limit(1).exec((err, nextPlay) => {
+               currentId = nextPlay['id'].toString();
+               socket.emit('getNextPlay', nextPlay)
 
-    socket.on('getPlays', () => {
-        Play.find({}).exec((err, plays) => {
-            if (err) {
-                console.log("---USER GET failed!!")
-            } else {
-                // console.log(plays)
-                // setInterval(() => {
-                //     for(i = 0; i < plays.length; i++) {
-                //         socket.emit('sendPlays', plays[i])
-                //         console.log("+++USER GET worked!!")
-                //     }
-                // }, timeInterval)
-                socket.emit('getPlays', plays)
+           })
+        }
 
-
-            }
-        })
+       }, timeInterval)
+     
     })
-
+  
 
 
 
