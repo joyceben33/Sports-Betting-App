@@ -11,27 +11,50 @@ import PlayLog from "./playLog"
 import GameSummary from "./gameSummary"
 import BetTracker from "./betTracker"
 import PlaceBet from "./placeBet"
-import { subscribeToTimer } from './api';
+import { subscribeToTimer, getGameStatus, getTeams, getPlays } from './api';
 
 
 class App extends Component {
     constructor() {
         super()
-        
+
         this.state = {
-              timestamp: 'no timestamp yet'
+            timestamp: 'no timestamp yet',
+            gamestatus: {
+                gameId: "",
+                homeTeamId: "",
+                awayTeamId: "",
+                active: false,
+                complete: false
+            },
+            teams: ['', ''],
+            plays: ['']
         };
 
-        subscribeToTimer((err, timestamp) => this.setState({ 
-            timestamp 
+
+
+        subscribeToTimer((err, timestamp) => this.setState({
+            timestamp
         }));
 
-        // this.subscribeToTimer = this.subscribeToTimer.bind(this)
+        getGameStatus((err, gamestatus) => this.setState({
+            gamestatus
+        }))
+
+
+        getTeams((err, teams) => this.setState({
+            teams
+        }))
+
+        getPlays((err, plays) => this.setState({
+            plays
+        }))
+
+
+        // this.gamestatus = this.subscribeToTimer.bind(this)
     }
 
-    
 
-    
 
     render() {
 
@@ -39,12 +62,17 @@ class App extends Component {
             <Container maxWidth="lg">
                 <div>
                     time: {this.state.timestamp}
+                    homeId: {this.state.gamestatus.homeTeamId}
+                    teams: {this.state.teams[0].city} + {this.state.teams[1].city}
+                    plays: {}
+
                 </div>
-                <GameSummary subscribeToTimer={this.subscribeToTimer} />
+                {/* <GameSummary /> */}
                 <PlayLog />
-                <BetTracker />
+                {/* <BetTracker /> */}
                 <PlaceBet />
             </Container>
+
         )
     }
 }

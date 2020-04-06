@@ -27,7 +27,7 @@ app.use(bodyParser.json())
 // MONGOOSE CONNECT
 // ===========================================================================
 // mongoose.connect(keys.MONGODB_URI);
-mongoose.connect('mongodb://localhost/bettingApp')
+mongoose.connect('mongodb://localhost:27017/bettingApp')
 
 const db = mongoose.connection
 db.on('error', () => {
@@ -94,7 +94,9 @@ io.on('connection', socket => {
 
     //Sending out initial game status to clients connected to the socket
     //Note hard coded game id because there is just one game in the database
-    app.get('/', (req,res) => {
+    socket.on('getGameStatus', () => {
+        console.log('emiteed')
+
         Game.findOne({
             "gameId": "401161581"
         }).exec((err, game) => {
@@ -102,46 +104,59 @@ io.on('connection', socket => {
                 console.log("---USER GET failed!!")
             } else {
                 console.log(game)
-                socket.emit('initialGameStatus', res.send(game))
+                socket.emit('getGameStatus', game)
+                console.log("+++USER GET worked!!")
+            }
+        })
+
+
+    })
+
+    socket.on('getTeams', () => {
+        Team.find({}).exec((err, teams) => {
+            if (err) {
+                console.log("---USER GET failed!!")
+            } else {
+                console.log(teams)
+                socket.emit('getTeams', teams)
                 console.log("+++USER GET worked!!")
             }
         })
     })
-   
+
+    socket.on('getPlays', () => {
+        Play.find({}).exec((err, plays) => {
+            if (err) {
+                console.log("---USER GET failed!!")
+            } else {
+                // console.log(plays)
+                // setInterval(() => {
+                //     for(i = 0; i < plays.length; i++) {
+                //         socket.emit('sendPlays', plays[i])
+                //         console.log("+++USER GET worked!!")
+                //     }
+                // }, timeInterval)
+                socket.emit('getPlays', plays)
+
+
+            }
+        })
+    })
+
+
+
 
 
     socket.on('subscribeToTimer', (interval) => {
         console.log('client is subscribing to timer with interval ', interval);
         setInterval(() => {
-          socket.emit('timer', new Date());
+            socket.emit('timer', new Date());
         }, interval);
     });
 
 
 
-    // socket.on('startGame', (timeInterval) => {
-    //     console.log(`client is subscribing to plays being sent every ${timeInterval/1000} seconds`);
-    //     //start the game
-    //      game = setInterval(() => {
-    //         io.sockets.emit('playByPlay', getPlay())
-    //     , timeInterval})
 
-
-    //     //write function
-    //     function getPlay() {
-    //         return( 
-    //         app.get("/Game", (req, res, next) => {
-    //             Game
-    //                 .findOne({})
-    //                 .exec((err, play) => {
-    //                     res.send(play)
-
-    //                 })
-
-    //         }))
-    //     }
-
-    // })
 
 
 
