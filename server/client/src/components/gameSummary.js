@@ -9,18 +9,24 @@ import Typography from '@material-ui/core/Typography';
 // })
 
 // global.socket.emit('check-in', {checkIn1: "first customer" })
+// import { subcribeToTimer } from './api';
 
 
 
 function GameSummary() {
+    // constructor(props) (
+    //     super(props)
+    //     state = {}
 
-    // const socket = socketIOClient(this.state.endpoint);
+      
+    // )
+
 
     return (
         <Box display="flex" justifyContent="space-between">
             <Box>
                 <Typography variant="h3" gotterbottom>
-                    MIL
+                    {/* MIL {this.state.timestamp} */}
                 </Typography>
                 <Typography variant="h5" gotterbottom>
                     Bucks
