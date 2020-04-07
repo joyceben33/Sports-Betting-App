@@ -19,7 +19,8 @@ class App extends Component {
         this.state = {
             gamestatus: null,
             teams: [],
-            plays: []
+            plays: [],
+            bets: []
         };
 
 
@@ -38,8 +39,12 @@ class App extends Component {
             plays: this.state.plays.concat(play)
         }))
 
+        // this.updateBets = this.updateBets.bind(this)
 
-        // this.gamestatus = this.subscribeToTimer.bind(this)
+    }
+    
+    updateBets(message) {
+        console.log(message);
     }
 
 
@@ -49,21 +54,11 @@ class App extends Component {
         return (
 
             <Container maxWidth="lg">
-                {/* <div>
-                    <ul>
-                        {this.state.teams.map(item =>
-                            <li key={item.id}>
-                                {item.city}
-                            </li>
-                        )}
-                    </ul>
-                </div> */}
-                
                 <GameSummary teams={this.state.teams}
                 score={this.state.plays[this.state.plays.length - 1]}/>
                 <PlayLog lastPlay={this.state.plays[this.state.plays.length - 1]} />
                 <BetTracker />
-                <PlaceBet />
+                <PlaceBet addBet = {this.updateBets} />
             </Container>
 
         )

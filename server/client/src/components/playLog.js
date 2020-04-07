@@ -38,7 +38,7 @@ export default class PlayLog extends Component{
 
   componentWillReceiveProps(nextProps) {
     this.setState({lastPlay: nextProps.lastPlay});
-    rows[0] = createData(nextProps.lastPlay.play.text, `${nextProps.lastPlay.play.awayScore} - ${nextProps.lastPlay.play.awayScore} `, nextProps.lastPlay.homeWinPercentage);
+    rows[0] = createData( (nextProps.lastPlay && nextProps.lastPlay.play.text), `${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} - ${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} `, (nextProps.lastPlay && nextProps.lastPlay.homeWinPercentage));
 }
  
 
@@ -51,7 +51,7 @@ export default class PlayLog extends Component{
             <TableRow>
               <TableCell>Play Description</TableCell>
               <TableCell align="right">Score</TableCell>
-              <TableCell align="right">Win Probability</TableCell>
+              <TableCell align="right">Home Win Probability</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
