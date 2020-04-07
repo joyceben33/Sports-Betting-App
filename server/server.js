@@ -27,7 +27,7 @@ app.use(bodyParser.json())
 // MONGOOSE CONNECT
 // ===========================================================================
 // mongoose.connect(keys.MONGODB_URI);
-mongoose.connect('mongodb://localhost/bettingApp')
+mongoose.connect('mongodb://localhost:27017/bettingApp')
 
 const db = mongoose.connection
 db.on('error', () => {
@@ -68,15 +68,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-// app.get('/', (req, res) => {
-//     Game
-//         .findOne({
-//             "gameId": "401161581"
-//         })
-//         .exec((err, game) => {
-//             res.send(game)
-//         })
-// })
 
 
 /***************************************************************************************** */
@@ -94,55 +85,59 @@ io.on('connection', socket => {
 
     //Sending out initial game status to clients connected to the socket
     //Note hard coded game id because there is just one game in the database
-    app.get('/', (req,res) => {
+    socket.on('getGameStatus', () => {
+        console.log('emiteed')
+
         Game.findOne({
             "gameId": "401161581"
         }).exec((err, game) => {
             if (err) {
-                console.log("---USER GET failed!!")
+                console.log("---Game GET failed!!")
             } else {
                 console.log(game)
-                socket.emit('initialGameStatus', res.send(game))
-                console.log("+++USER GET worked!!")
+                io.local.emit('getGameStatus', game)
+                console.log("+++Game GET worked!!")
+            }
+        })
+
+
+    })
+
+    socket.on('getTeams', () => {
+        Team.find({}).exec((err, teams) => {
+            if (err) {
+                console.log("---TEAM GET failed!!")
+            } else {
+                console.log(teams)
+                io.local.emit('getTeams', teams)
+                console.log("+++TEAM GET worked!!")
             }
         })
     })
-   
+    
+    let playLogInterval;
+    let currentId = null
+    socket.on('subscribeToPlayLog', (timeInterval) => {
+       playLogInterval = setInterval(() => {
+        if (!currentId) {
+            Play.findOne({}).exec((err, firstPlay) => {
+                currentId = firstPlay['_id'].toString();
+                io.local.emit('getNextPlay', firstPlay)
+            })
+        } else{
+           Play.find({_id: {$gt: currentId}}).sort({_id: 1}).limit(1).exec((err, nextPlay) => {
+              
+               currentId = nextPlay[0] ? nextPlay[0]['_id'].toString() : null
+               if(!currentId){
+                return clearInterval(playLogInterval)
+            }
+               io.local.emit('getNextPlay', nextPlay)
 
-    // socket.on('subscribeToTimer', (interval) => {
-    //     console.log('client is subscribing to timer with interval ', interval);
-    //     setInterval(() => {
-    //       socket.emit('timer', new Date());
-    //     }, interval);
-    // });
+           })
+        }
 
-
-
-    // socket.on('startGame', (timeInterval) => {
-    //     console.log(`client is subscribing to plays being sent every ${timeInterval/1000} seconds`);
-    //     //start the game
-    //      game = setInterval(() => {
-    //         io.sockets.emit('playByPlay', getPlay())
-    //     , timeInterval})
-
-
-    //     //write function
-    //     function getPlay() {
-    //         return( 
-    //         app.get("/Game", (req, res, next) => {
-    //             Game
-    //                 .findOne({})
-    //                 .exec((err, play) => {
-    //                     res.send(play)
-
-    //                 })
-
-    //         }))
-    //     }
-
-    // })
-
-
-
+       }, timeInterval)
+     
+    })
 
 });
