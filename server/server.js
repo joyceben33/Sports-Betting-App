@@ -68,15 +68,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-// app.get('/', (req, res) => {
-//     Game
-//         .findOne({
-//             "gameId": "401161581"
-//         })
-//         .exec((err, game) => {
-//             res.send(game)
-//         })
-// })
 
 
 /***************************************************************************************** */
@@ -135,7 +126,7 @@ io.on('connection', socket => {
             })
         } else{
            Play.find({_id: {$gt: currentId}}).sort({_id: 1}).limit(1).exec((err, nextPlay) => {
-               currentId = nextPlay['id'].toString();
+               currentId = nextPlay[0]['_id'].toString();
                socket.emit('getNextPlay', nextPlay)
 
            })
