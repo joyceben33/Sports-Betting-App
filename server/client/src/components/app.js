@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
-// import {connect} from 'react-redux'
-// import {loadinitialGameStatusSocket} from '../actions/action'
-import io from "socket.io-client"
+
 
 //Material UI
 import Container from '@material-ui/core/Container'
@@ -19,23 +17,13 @@ class App extends Component {
         super()
 
         this.state = {
-            timestamp: 'no timestamp yet',
-            gamestatus: {
-                gameId: "",
-                homeTeamId: "",
-                awayTeamId: "",
-                active: false,
-                complete: false
-            },
-            teams: ['', ''],
+            gamestatus: null,
+            teams: [],
             plays: []
         };
 
 
 
-        subscribeToTimer((err, timestamp) => this.setState({
-            timestamp
-        }));
 
         getGameStatus((err, gamestatus) => this.setState({
             gamestatus
@@ -47,7 +35,7 @@ class App extends Component {
         }))
 
         getNextPlay((err, play) => this.setState({
-            plays : this.state.plays.concat(play)
+            plays: this.state.plays.concat(play)
         }))
 
 
@@ -59,16 +47,22 @@ class App extends Component {
     render() {
 
         return (
-            <Container maxWidth="lg">
-                <div>
-                    time: {this.state.timestamp}
-                    homeId: {this.state.gamestatus.homeTeamId}
-                    teams: {this.state.teams[0].city} + {this.state.teams[1].city}
 
-                </div>
-                {/* <GameSummary /> */}
-                <PlayLog />
-                {/* <BetTracker /> */}
+            <Container maxWidth="lg">
+                {/* <div>
+                    <ul>
+                        {this.state.teams.map(item =>
+                            <li key={item.id}>
+                                {item.city}
+                            </li>
+                        )}
+                    </ul>
+                </div> */}
+                
+                <GameSummary teams={this.state.teams}
+                score={this.state.plays[this.state.plays.length - 1]}/>
+                <PlayLog lastPlay={this.state.plays[this.state.plays.length - 1]} />
+                <BetTracker />
                 <PlaceBet />
             </Container>
 

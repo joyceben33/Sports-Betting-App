@@ -92,11 +92,11 @@ io.on('connection', socket => {
             "gameId": "401161581"
         }).exec((err, game) => {
             if (err) {
-                console.log("---USER GET failed!!")
+                console.log("---Game GET failed!!")
             } else {
                 console.log(game)
-                socket.emit('getGameStatus', game)
-                console.log("+++USER GET worked!!")
+                io.local.emit('getGameStatus', game)
+                console.log("+++Game GET worked!!")
             }
         })
 
@@ -106,11 +106,11 @@ io.on('connection', socket => {
     socket.on('getTeams', () => {
         Team.find({}).exec((err, teams) => {
             if (err) {
-                console.log("---USER GET failed!!")
+                console.log("---TEAM GET failed!!")
             } else {
                 console.log(teams)
-                socket.emit('getTeams', teams)
-                console.log("+++USER GET worked!!")
+                io.local.emit('getTeams', teams)
+                console.log("+++TEAM GET worked!!")
             }
         })
     })
@@ -122,12 +122,16 @@ io.on('connection', socket => {
         if (!currentId) {
             Play.findOne({}).exec((err, firstPlay) => {
                 currentId = firstPlay['_id'].toString();
-                socket.emit('getNextPlay', firstPlay)
+                io.local.emit('getNextPlay', firstPlay)
             })
         } else{
            Play.find({_id: {$gt: currentId}}).sort({_id: 1}).limit(1).exec((err, nextPlay) => {
-               currentId = nextPlay[0]['_id'].toString();
-               socket.emit('getNextPlay', nextPlay)
+              
+               currentId = nextPlay[0] ? nextPlay[0]['_id'].toString() : null
+               if(!currentId){
+                return clearInterval(playLogInterval)
+            }
+               io.local.emit('getNextPlay', nextPlay)
 
            })
         }
@@ -135,23 +139,5 @@ io.on('connection', socket => {
        }, timeInterval)
      
     })
-  
-
-
-
-
-    socket.on('subscribeToTimer', (interval) => {
-        console.log('client is subscribing to timer with interval ', interval);
-        setInterval(() => {
-            socket.emit('timer', new Date());
-        }, interval);
-    });
-
-
-
-
-
-
-
 
 });
