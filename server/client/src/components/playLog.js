@@ -10,21 +10,14 @@ import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles({
   table: {
-    minWidth: 650,
-  },
-});
+    minWidth: 650
+  }
+})
 
 function createData(play, score, winProbability) {
   return { play, score, winProbability };
 }
 
-// const rows = [
-//   createData({}, "13-0", "0.4"),
-//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-//   createData('Eclair', 262, 16.0, 24, 6.0),
-//   createData('Cupcake', 305, 3.7, 67, 4.3),
-//   createData('Gingerbread', 356, 16.0, 49, 3.9),
-// ];
 
 let rows = [];
 
@@ -38,7 +31,17 @@ export default class PlayLog extends Component{
 
   componentWillReceiveProps(nextProps) {
     this.setState({lastPlay: nextProps.lastPlay});
-    rows[0] = createData( (nextProps.lastPlay && nextProps.lastPlay.play.text), `${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} - ${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} `, (nextProps.lastPlay && nextProps.lastPlay.homeWinPercentage));
+    if(nextProps.lastPlay) {
+      rows = (() => {
+        let updatedRows = rows;
+        updatedRows.unshift(createData( nextProps.lastPlay && nextProps.lastPlay.play.text, `${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} - ${nextProps.lastPlay && nextProps.lastPlay.play.homeScore} `, nextProps.lastPlay && nextProps.lastPlay.homeWinPercentage));
+        updatedRows = updatedRows.slice(0, 5);
+        return updatedRows;
+      })();
+    }
+    // rows.push(createData( nextProps.lastPlay && nextProps.lastPlay.play.text, `${nextProps.lastPlay && nextProps.lastPlay.play.awayScore} - ${nextProps.lastPlay && nextProps.lastPlay.play.homeScore} `, nextProps.lastPlay && nextProps.lastPlay.homeWinPercentage));
+    // rows.push(createData('play', 'score', 'percent'));
+    // console.log(nextProps.lastPlay)
 }
  
 
@@ -55,8 +58,8 @@ export default class PlayLog extends Component{
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.play}>
+            {rows.map((row, index) => (
+              <TableRow key={index}>
                 <TableCell component="th" scope="row">
                   {row.play}
                 </TableCell>

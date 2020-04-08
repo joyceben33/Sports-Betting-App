@@ -31,7 +31,7 @@ class GameSummary extends Component {
         super(props)
         this.state = {
             teams: [],
-            score: null
+            score: null,
         }
         
 
@@ -46,29 +46,29 @@ class GameSummary extends Component {
         return (
             <Box display="flex" justifyContent="space-between">
                 <Box>
-                    <Typography variant="h3" gotterbottom >
+                    <Typography variant="h3" gutterBottom >
                         <Avatar alt="" src={this.state.teams.length > 0 && this.state.teams[0].logoURL} />
                     </Typography>
-                    <Typography variant="h5" gotterbottom>
+                    <Typography variant="h5" gutterBottom>
                         {this.state.teams.length > 0 && this.state.teams[0].teamName}
                 </Typography>
-                    <Typography variant="body1" gotterbottom>
+                    <Typography variant="body1" gutterBottom>
                         ({this.state.teams.length > 0 && this.state.teams[0].wins} - {this.state.teams.length > 0 && this.state.teams[0].losses})
                 </Typography>
                 </Box>
                 <Box>
-                    <Typography variant="h1" gotterbottom>
+                    <Typography variant="h1" gutterBottom>
                         {this.state.score  ? this.state.score.play.awayScore : 0} - {this.state.score  ? this.state.score.play.homeScore : 0}
                 </Typography>
                 </Box>
                 <Box>
-                    <Typography variant="h3" gotterbottom>
+                    <Typography variant="h3" gutterBottom>
                     <Avatar alt="" src={this.state.teams.length > 0 && this.state.teams[1].logoURL} />
                 </Typography>
-                    <Typography variant="h5" gotterbottom>
+                    <Typography variant="h5" gutterBottom>
                     {this.state.teams.length > 0 && this.state.teams[1].teamName}
                 </Typography>
-                    <Typography variant="body1" gotterbottom>
+                    <Typography variant="body1" gutterBottom>
                     ({this.state.teams.length > 0 && this.state.teams[1].wins} - {this.state.teams.length > 0 && this.state.teams[1].losses})
                 </Typography>
                 </Box>

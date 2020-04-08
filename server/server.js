@@ -70,6 +70,8 @@ if (process.env.NODE_ENV === 'production') {
 
 
 
+
+
 /***************************************************************************************** */
 /* Socket logic starts here																   */
 /***************************************************************************************** */
@@ -95,7 +97,7 @@ io.on('connection', socket => {
                 console.log("---Game GET failed!!")
             } else {
                 console.log(game)
-                io.local.emit('getGameStatus', game)
+                socket.emit('getGameStatus', game)
                 console.log("+++Game GET worked!!")
             }
         })
@@ -109,7 +111,7 @@ io.on('connection', socket => {
                 console.log("---TEAM GET failed!!")
             } else {
                 console.log(teams)
-                io.local.emit('getTeams', teams)
+                socket.emit('getTeams', teams)
                 console.log("+++TEAM GET worked!!")
             }
         })
@@ -120,18 +122,18 @@ io.on('connection', socket => {
     socket.on('subscribeToPlayLog', (timeInterval) => {
        playLogInterval = setInterval(() => {
         if (!currentId) {
-            Play.findOne({}).exec((err, firstPlay) => {
-                currentId = firstPlay['_id'].toString();
-                io.local.emit('getNextPlay', firstPlay)
+            Play.findOne({playId: "004011615814"}).exec((err, firstPlay) => {
+                currentId = firstPlay['playId'];
+                socket.emit('getNextPlay', firstPlay)
             })
         } else{
-           Play.find({_id: {$gt: currentId}}).sort({_id: 1}).limit(1).exec((err, nextPlay) => {
+           Play.find({playId: {$gt: currentId}}).sort({playId: 1}).limit(1).exec((err, nextPlay) => {
               
-               currentId = nextPlay[0] ? nextPlay[0]['_id'].toString() : null
+               currentId = nextPlay[0] ? nextPlay[0]['playId'] : null
                if(!currentId){
                 return clearInterval(playLogInterval)
             }
-               io.local.emit('getNextPlay', nextPlay)
+               socket.emit('getNextPlay', nextPlay)
 
            })
         }

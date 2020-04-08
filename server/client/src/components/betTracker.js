@@ -1,5 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
+// bet tracker
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -8,53 +10,148 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-const useStyles = makeStyles({
-  table: {
-    minWidth: 650,
-  },
-});
+// place bet
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import Button from '@material-ui/core/Button';
+import SendIcon from '@material-ui/icons/Send';
+import Container from '@material-ui/core/Container';
 
-function createData(betType, betDesc, betStatus, wager, expReturn) {
-  return { betType, betDesc, betStatus, wager, expReturn };
-}
+// const useStyles = makeStyles((theme) => {
+//   table: {
+//     minWidth: 650
+//   }
+//   button: {
+//     margin: theme.spacing(1)
+//   }
+// });
 
-const rows = [
-  createData('Line', "MIL +150", "Active", "$50", "+($20)" ),
-//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-//   createData('Eclair', 262, 16.0, 24, 6.0),
-//   createData('Cupcake', 305, 3.7, 67, 4.3),
-//   createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 
-export default function BetTracker() {
-  const classes = useStyles();
+
+
+export default function BetTracker(props) {
+  // const classes = useStyles();
+
+  // place bet vars
+  const [betType, setBetType] = React.useState('line');
+  const [teamSelection, setTeamSelection] = React.useState('LAL');
+  const [wager, setWager] = React.useState('50');
+
+  // bet tracker vars
+  const [placedBets] = React.useState([]);
+  
+  // place bet functions
+  const handleBetType = (event) => {
+    setBetType(event.target.value);
+    console.log(event)
+  };
+
+  const handleTeamSelection = (event) => {
+    setTeamSelection(event.target.value)
+  }
+
+  const handleWager = (event) => {
+    setWager(event.target.value)
+  }
+  function addBet() {
+    const selectedTeam = teamSelection;
+    const betDesc = `${teamSelection} ${teamSelection === 'LAL' ? props.getLine().home : props.getLine().away}`;
+    const betStatus = 'Active'
+    const expRet = calcExpReturn(wager, selectedTeam);
+    placedBets.push({betType, selectedTeam, betDesc, betStatus, wager, expRet});
+    console.log(placedBets)
+  }
+
+  // // bet tracker functions
+  // function createData(betType, betDesc, betStatus, wager, expReturn) {
+  //   return { betType, betDesc, betStatus, wager, expReturn };
+  // }
+
+  function calcExpReturn (wager, selectedTeam) {
+    // const potentialPayout = Math.abs(props.getLine()) + wager
+    // const expRet = (potentialPayout) - wager;
+    // return expRet;
+    const line = selectedTeam === 'LAL' ? props.getLine().home : props.getLine().away;
+    const payoutLine = Math.abs(line);
+    const favoriteSelected = line < 0;
+    const expRet = favoriteSelected ? 100/payoutLine*100 : -wager;
+    return Math.round(expRet, 2);
+  }
+  
+  const expRetInterval = setInterval(() => {
+    placedBets.forEach((bet) => {
+      bet.expRet = calcExpReturn(bet.wager, bet.selectedTeam);
+    })
+  },3000)
 
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Type</TableCell>
-            <TableCell align="right">Description</TableCell>
-            <TableCell align="right">status</TableCell>
-            <TableCell align="right">Wager</TableCell>
-            <TableCell align="right">Gain/Loss</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.play}>
-              <TableCell component="th" scope="row">
-                {row.betType}
-              </TableCell>
-              <TableCell align="right">{row.betDesc}</TableCell>
-              <TableCell align="right">{row.betStatus}</TableCell>
-              <TableCell align="right">{row.wager}</TableCell>
-              <TableCell align="right">{row.expReturn}</TableCell>
+    <Container>
+      {/* place bet */}
+      <FormControl>
+        <FormLabel component="legend">Bet Type</FormLabel>
+        <RadioGroup aria-label="Bet Type" name="bet-type" value={betType} onChange={handleBetType}>
+          <FormControlLabel value="line" control={<Radio />} label="Line" />
+        </RadioGroup>
+      </FormControl>
+      <FormControl>
+        <FormLabel component="legend">Team (Home/Away)</FormLabel>
+        <RadioGroup aria-label="Choose A Team" name="team" value={teamSelection} onChange={handleTeamSelection}>
+          <FormControlLabel value="MIL" control={<Radio />} label="MIL" />
+          <FormControlLabel value="LAL" control={<Radio />} label="LAL" />
+        </RadioGroup>
+      </FormControl>
+      <FormControl >
+        <FormLabel component="legend">Place Bet</FormLabel>
+        <RadioGroup aria-label="Wager" name="wager" value={wager} onChange={handleWager}>
+          <FormControlLabel value="20" control={<Radio />} label="$20" />
+          <FormControlLabel value="50" control={<Radio />} label="$50" />
+          <FormControlLabel value="100" control={<Radio />} label="$100" />
+        </RadioGroup>
+      </FormControl>
+      <FormControl>
+       
+      <Button
+          variant="contained"
+          color="primary"
+          endIcon={<SendIcon />}
+          onClick={() => { addBet() }}
+        >
+          Send
+      </Button>
+      </FormControl>
+
+
+
+      {/* bet tracker */}
+      <TableContainer component={Paper}>
+        <Table aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Type</TableCell>
+              <TableCell align="right">Description</TableCell>
+              <TableCell align="right">status</TableCell>
+              <TableCell align="right">Wager</TableCell>
+              <TableCell align="right">Gain/Loss</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {placedBets.map((bet, index) => (
+              <TableRow key={index}>
+                <TableCell component="th" scope="bet">
+                  {bet.betType}
+                </TableCell>
+                <TableCell align="right">{bet.betDesc}</TableCell>
+                <TableCell align="right">{bet.betStatus}</TableCell>
+                <TableCell align="right">{bet.wager}</TableCell>
+                <TableCell align="right">${bet.expRet}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
 }
