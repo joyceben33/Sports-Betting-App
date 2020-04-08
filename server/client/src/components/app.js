@@ -4,10 +4,16 @@ import React, { Component } from "react";
 //Material UI
 import Container from '@material-ui/core/Container'
 import { Typography } from "@material-ui/core";
+import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import SportsBasketballIcon from '@material-ui/icons/SportsBasketball';
 // Import Components
 import PlayLog from "./playLog"
 import GameSummary from "./gameSummary"
@@ -59,7 +65,7 @@ class App extends Component {
     getLine() {
         return this.state.line
     }
-    
+
 
     //This function is passed down to betTracker component
     updateLine(lastPlay) {
@@ -82,20 +88,20 @@ class App extends Component {
 
     useStyles = makeStyles({
         root: {
-          minWidth: 275,
+            minWidth: 275,
         },
         bullet: {
-          display: 'inline-block',
-          margin: '0 2px',
-          transform: 'scale(0.8)',
+            display: 'inline-block',
+            margin: '0 2px',
+            transform: 'scale(0.8)',
         },
         title: {
-          fontSize: 14,
+            fontSize: 14,
         },
         pos: {
-          marginBottom: 12,
+            marginBottom: 12,
         },
-      });
+    });
 
 
 
@@ -104,6 +110,15 @@ class App extends Component {
         return (
 
             <Container maxWidth="lg">
+                <AppBar position="sticky">
+                    <Toolbar variant="dense">
+                        <Typography className="text-align-center" variant="h3" color="inherit">
+                            <SportsBasketballIcon fontSize="large" />
+                                Courtside Gamble
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+
                 <GameSummary teams={this.state.teams}
                     score={this.state.plays[this.state.plays.length - 1]} />
                 {/* <form noValidate autoComplete="off">
@@ -113,7 +128,7 @@ class App extends Component {
                     <TextField id="standard-basic" label='Home:' />
                     <TextField id="standard-basic" label={this.state.line ? this.state.line.home.toString() : "Not Available"} />
                 </form> */}
-                <Card  variant="outlined">
+                <Card variant="outlined">
                     <CardContent>
                         <Typography gutterBottom>
                             Current Line
@@ -126,7 +141,7 @@ class App extends Component {
                         </Typography>
                     </CardContent>
                 </Card>
-                <PlayLog lastPlay={this.state.plays.length> 0 && this.state.plays[this.state.plays.length - 1]} />
+                <PlayLog lastPlay={this.state.plays.length > 0 && this.state.plays[this.state.plays.length - 1]} />
                 <BetTracker line={this.state.line} getLine={this.getLine} />
             </Container>
 
