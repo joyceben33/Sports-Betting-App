@@ -24,7 +24,7 @@ import SportsBasketballIcon from '@material-ui/icons/SportsBasketball';
 
 
 ReactDOM.render(
-    <App />,
+    <App  />,
   document.getElementById('root')
 );
 
