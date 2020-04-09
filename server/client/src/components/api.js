@@ -15,6 +15,8 @@ export function getTeams(cb){
 
 export function getNextPlay(cb){
   socket.on('getNextPlay', play => cb(null, play))
+}
+export function startGame(){
   socket.emit('subscribeToPlayLog', 2500)
 }
 
