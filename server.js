@@ -47,10 +47,11 @@ app.use(express.urlencoded({
 
 // Server Setup
 // ===========================================================================
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 server.listen(port, () => {
+    console.log(`Server is listening on port: ${port}`)
     console.log("+++User Express Server with Socket Running!!!")
 });
 
