@@ -1,25 +1,19 @@
 const express = require('express');
 const http = require('http');
-const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
-// const keys = require('./config/keys');
 const app = express();
 const index = require('./routes/index');
 //Import Schemas from models folder
 const Game = require('./models/game');
 const Play = require('./models/play');
 const Team = require('./models/team');
-const Bet = require('./models/bet');
+
 
 
 
 // Add Models below
 
-//Body Parser
-app.use(bodyParser.urlencoded({
-    extended: true
-}))
-app.use(bodyParser.json())
+
 
 // app.use(index);
 
@@ -27,7 +21,10 @@ app.use(bodyParser.json())
 // MONGOOSE CONNECT
 // ===========================================================================
 // mongoose.connect(keys.MONGODB_URI);
-mongoose.connect('mongodb://localhost:27017/bettingApp')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bettingApp', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
 
 const db = mongoose.connection
 db.on('error', () => {
@@ -37,6 +34,12 @@ db.once('open', () => {
     console.log('+++User connected to mongoose')
 })
 
+
+//Data parsing
+app.use(express.json())
+app.use(express.urlencoded({
+    extended: false
+}))
 
 
 
@@ -61,10 +64,10 @@ if (process.env.NODE_ENV === 'production') {
 
     // Express will serve up the index.html file
     // if it doesn't recognize the route
-    const path = require('path');
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
+    // const path = require('path');
+    // app.get('*', (req, res) => {
+    //     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    // });
 }
 
 
