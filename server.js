@@ -1,8 +1,12 @@
 const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
+const path = require('path');
+const bodyParser = require('body-parser');
 const app = express();
-const index = require('./routes/index');
+
+const routes = require('./routes');
+
 //Import Schemas from models folder
 const Game = require('./models/game');
 const Play = require('./models/play');
@@ -36,18 +40,16 @@ db.once('open', () => {
 
 
 //Data parsing
-app.use(express.json())
-app.use(express.urlencoded({
-    extended: false
-}))
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use('/', routes);
 
 
 
 
 // Server Setup
 // ===========================================================================
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 server.listen(port, () => {
@@ -65,10 +67,10 @@ if (process.env.NODE_ENV === 'production') {
 
     // Express will serve up the index.html file
     // if it doesn't recognize the route
-    // const path = require('path');
-    // app.get('*', (req, res) => {
-    //     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    // });
+    
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
 }
 
 
