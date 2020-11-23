@@ -43,19 +43,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-
-
-
-// Server Setup
-// ===========================================================================
-const port = process.env.PORT || 5000;
-const server = http.createServer(app);
-const io = require('socket.io')(server);
-server.listen(port, () => {
-    console.log(`Server is listening on port: ${port}`)
-    console.log("+++User Express Server with Socket Running!!!")
-});
-
 /***************************************************************************************** */
 /* Conditions for production														   */
 /***************************************************************************************** */
@@ -73,6 +60,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
+// Server Setup
+// ===========================================================================
+const port = process.env.PORT || 5000;
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+server.listen(port, () => {
+    console.log(`Server is listening on port: ${port}`)
+    console.log("+++User Express Server with Socket Running!!!")
+});
 
 
 
