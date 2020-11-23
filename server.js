@@ -5,7 +5,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
 
-const routes = require('./routes');
 
 //Import Schemas from models folder
 const Game = require('./models/game');
@@ -42,7 +41,7 @@ db.once('open', () => {
 //Data parsing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/', routes);
+
 
 
 
