@@ -1,10 +1,9 @@
 const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
-const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-// const router = require('./router');
+const router = require('./routes/index.js');
 const app = express();
 
 
@@ -41,7 +40,6 @@ db.once('open', () => {
 
 
 //Data parsing
-app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -50,18 +48,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /***************************************************************************************** */
 /* Conditions for production														   */
 /***************************************************************************************** */
-if (process.env.NODE_ENV === "production") {
-    // Express will serve up production assets
-    // like our main.js file, or main.css file!
-    app.use(express.static("public"));
+// if (process.env.NODE_ENV === "production") {
+//     // Express will serve up production assets
+//     // like our main.js file, or main.css file!
+//     app.use(express.static("public"));
 
-    // Express will serve up the index.html file
-    // if it doesn't recognize the route
+//     // Express will serve up the index.html file
+//     // if it doesn't recognize the route
     
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-    });
-}
+//     app.get("*", (req, res) => {
+//         res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+//     });
+// }
 
 
 // Server Setup
@@ -70,7 +68,9 @@ const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
-// app.use(cors());
+app.use(cors());
+app.use(router);
+
 
 
 
