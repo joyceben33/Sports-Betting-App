@@ -20,6 +20,7 @@ const Team = require('./models/team');
 
 
 
+// 'mongodb://localhost:27017/bettingApp'
 // MONGOOSE CONNECT
 // ===========================================================================
  const connect = mongoose.connect(process.env.NODE_ENV === 'production' ? process.env.MONGODB_URI : 'mongodb://localhost:27017/bettingApp', {
