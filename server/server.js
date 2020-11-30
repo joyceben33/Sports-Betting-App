@@ -1,9 +1,13 @@
 const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
 const cors = require('cors');
-const router = require('./routes/index.js');
+const router = express.Router();
+dotenv.config()
 const app = express();
 
 
@@ -15,51 +19,27 @@ const Team = require('./models/team');
 
 
 
-// Add Models below
-
-
-
-// app.use(index);
-
 
 // MONGOOSE CONNECT
 // ===========================================================================
-// mongoose.connect(keys.MONGODB_URI);
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bettingApp', {
+ const connect = mongoose.connect(process.env.NODE_ENV === 'production' ? process.env.MONGODB_URI : 'mongodb://localhost:27017/bettingApp', {
     useNewUrlParser: true,
     useUnifiedTopology: true
-})
-
-const db = mongoose.connection
-db.on('error', () => {
-    console.log('---User FAILED to connect to mongoose')
-})
-db.once('open', () => {
-    console.log('+++User connected to mongoose')
-})
+}).then (() => console.log('MonogDB connected...')).catch(err => console.log(err))
 
 
 //Data parsing
+
+app.use(express.urlencoded({
+    extended: false
+}));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors());
+app.use(router);
 
 
 
-/***************************************************************************************** */
-/* Conditions for production														   */
-/***************************************************************************************** */
-// if (process.env.NODE_ENV === "production") {
-//     // Express will serve up production assets
-//     // like our main.js file, or main.css file!
-//     app.use(express.static("public"));
-
-//     // Express will serve up the index.html file
-//     // if it doesn't recognize the route
-    
-//     app.get("*", (req, res) => {
-//         res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-//     });
-// }
 
 
 // Server Setup
@@ -68,8 +48,7 @@ const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
-app.use(cors());
-app.use(router);
+
 
 
 
@@ -90,62 +69,81 @@ io.on('connection', socket => {
 
     //Sending out initial game status to clients connected to the socket
     //Note hard coded game id because there is just one game in the database
-    socket.on('getGameStatus', () => {
-        console.log('emiteed')
-
-        Game.findOne({
-            "gameId": "401161581"
-        }).exec((err, game) => {
-            if (err) {
-                console.log("---Game GET failed!!")
-            } else {
-                console.log(game)
-                socket.emit('getGameStatus', game)
-                console.log("+++Game GET worked!!")
-            }
-        })
-
-
-    })
-
-    socket.on('getTeams', () => {
-        Team.find({}).exec((err, teams) => {
-            if (err) {
-                console.log("---TEAM GET failed!!")
-            } else {
-                console.log(teams)
-                socket.emit('getTeams', teams)
-                console.log("+++TEAM GET worked!!")
-            }
-        })
+    connect.then(db => {
+        try{
+            socket.on('getGameStatus', () => {
+                console.log('emiteed')
+        
+                Game.findOne({
+                    "gameId": "401161581"
+                }).exec((err, game) => {
+                    if (err) {
+                        console.log("---Game GET failed!!")
+                    } else {
+                        console.log(game)
+                        socket.emit('getGameStatus', game)
+                        console.log("+++Game GET worked!!")
+                    }
+                })
+        
+        
+            })
+        
+            socket.on('getTeams', () => {
+                Team.find({}).exec((err, teams) => {
+                    if (err) {
+                        console.log("---TEAM GET failed!!")
+                    } else {
+                        console.log(teams)
+                        socket.emit('getTeams', teams)
+                        console.log("+++TEAM GET worked!!")
+                    }
+                })
+            })
+        
+            let playLogInterval;
+            let currentId = null
+            socket.on('subscribeToPlayLog', (timeInterval) => {
+                playLogInterval = setInterval(() => {
+                    if (!currentId) {
+                        Play.findOne({
+                            playId: "004011615814"
+                        }).exec((err, firstPlay) => {
+                            currentId = firstPlay['playId'];
+                            socket.emit('getNextPlay', firstPlay)
+                        })
+                    } else {
+                        Play.find({
+                            playId: {
+                                $gt: currentId
+                            }
+                        }).sort({
+                            playId: 1
+                        }).limit(1).exec((err, nextPlay) => {
+        
+                            currentId = nextPlay[0] ? nextPlay[0]['playId'] : null
+                            if (!currentId) {
+                                return clearInterval(playLogInterval)
+                            }
+                            socket.emit('getNextPlay', nextPlay)
+        
+                        })
+                    }
+        
+                }, timeInterval)
+        
+            })
+        }
+        catch (error) {
+            console.error(error);
+        }
     })
     
-    let playLogInterval;
-    let currentId = null
-    socket.on('subscribeToPlayLog', (timeInterval) => {
-       playLogInterval = setInterval(() => {
-        if (!currentId) {
-            Play.findOne({playId: "004011615814"}).exec((err, firstPlay) => {
-                currentId = firstPlay['playId'];
-                socket.emit('getNextPlay', firstPlay)
-            })
-        } else{
-           Play.find({playId: {$gt: currentId}}).sort({playId: 1}).limit(1).exec((err, nextPlay) => {
-              
-               currentId = nextPlay[0] ? nextPlay[0]['playId'] : null
-               if(!currentId){
-                return clearInterval(playLogInterval)
-            }
-               socket.emit('getNextPlay', nextPlay)
-
-           })
-        }
-
-       }, timeInterval)
-     
-    })
-
 });
+
+
+//HTTP Request Logger
+app.use(morgan('tiny'));
 
 server.listen(port, () => {
     console.log(`Server is listening on port: ${port}`)
