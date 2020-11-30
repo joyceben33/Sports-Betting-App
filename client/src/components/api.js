@@ -1,5 +1,8 @@
-import openSocket from 'socket.io-client';
-const  socket = openSocket('http://localhost:5000');
+import io from 'socket.io-client';
+let socket 
+const ENDPOINT = 'http://localhost:5000';
+// https://nba-betting-app-server.herokuapp.com/
+socket = io(ENDPOINT);
 
 
 
