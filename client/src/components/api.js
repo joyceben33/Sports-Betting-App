@@ -1,7 +1,6 @@
 import io from 'socket.io-client';
 let socket 
-const ENDPOINT = 'http://localhost:5000';
-// https://nba-betting-app-server.herokuapp.com/
+const ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://nba-betting-app-server.herokuapp.com/' : 'http://localhost:5000';
 socket = io(ENDPOINT);
 
 
